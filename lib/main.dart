@@ -9,7 +9,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final numberOfItems = 500;
-    final names = generateRandomNames(numberOfItems);
+    final names = Future.delayed(
+      Duration(seconds: 5),
+      () {
+        return Future.value(
+          generateRandomNames(numberOfItems),
+        );
+      },
+    );
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -19,29 +26,35 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(
           title: Text('IIT Rocks'),
         ),
-        body: ListView.builder(
-          itemCount: numberOfItems,
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(names[index]),
-              onTap: () {
-                final Widget details = Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.max,
-                    children: <Widget>[
-                      Icon(Icons.insert_emoticon),
-                      Text(names[index])
-                    ],
-                  ),
-                );
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) {
-                      return NewPage(child: details);
-                    },
-                  ),
+        body: FutureBuilder(
+          initialData: [],
+          future: names,
+          builder: (_, AsyncSnapshot value) {
+            return ListView.builder(
+              itemCount: value.data.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(value.data[index]),
+                  onTap: () {
+                    final Widget details = Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        children: <Widget>[
+                          Icon(Icons.insert_emoticon),
+                          Text(value.data[index])
+                        ],
+                      ),
+                    );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) {
+                          return NewPage(child: details);
+                        },
+                      ),
+                    );
+                  },
                 );
               },
             );
